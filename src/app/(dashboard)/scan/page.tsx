@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Tesseract from 'tesseract.js';
-import Loading from '@/components/Loading';
+import { createClient } from '@/lib/supabase/client';
 
 export default function ScanReceiptPage() {
   const [image, setImage] = useState<string | null>(null);
