@@ -36,7 +36,7 @@ export default function ScanReceiptPage() {
     try {
       const result = await Tesseract.recognize(
         image,
-        'eng',
+        'eng+ind',
         {
           logger: m => {
             if (m.status === 'recognizing text') {
@@ -67,12 +67,32 @@ export default function ScanReceiptPage() {
     let amount = 0;
     const text = resultText.toUpperCase();
     
-    // Naive parse for biggest number (likely total)
-    const numbers = resultText.match(/\d+(?:[.,]\d+)?/g);
-    if (numbers) {
-      const parsed = numbers.map(n => Number(n.replace(/,/g, ''))).filter(n => !isNaN(n) && n > 0);
-      if (parsed.length > 0) {
-        amount = Math.max(...parsed);
+    // Smart parse for total
+    const lines = text.split('\n');
+    let foundTotalLine = false;
+
+    for (const line of lines) {
+      if (line.includes('TOTAL') || line.includes('TL') || line.includes('BAYAR') || line.includes('TUNAI') || line.includes('NET') || line.includes('CASH')) {
+        const numbersInLine = line.match(/\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?/g);
+        if (numbersInLine) {
+          const parsed = numbersInLine.map(n => Number(n.replace(/[,.]/g, ''))).filter(n => !isNaN(n) && n > 0);
+          if (parsed.length > 0) {
+            amount = Math.max(amount, Math.max(...parsed));
+            foundTotalLine = true;
+          }
+        }
+      }
+    }
+
+    // Fallback if no total line found: get the biggest number but filter out likely zip codes/NPWP
+    if (!foundTotalLine || amount === 0) {
+      const numbers = resultText.match(/\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?/g);
+      if (numbers) {
+        const parsed = numbers.map(n => Number(n.replace(/[,.]/g, '')))
+          .filter(n => !isNaN(n) && n > 100 && n < 50000000 && n !== 15000 && n.toString().length !== 5 && n.toString().length !== 15);
+        if (parsed.length > 0) {
+          amount = Math.max(...parsed);
+        }
       }
     }
 
