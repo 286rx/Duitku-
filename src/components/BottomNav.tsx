@@ -3,11 +3,18 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import {
+  LayoutDashboard,
+  CreditCard,
+  Wallet as WalletIcon,
+  Camera
+} from 'lucide-react';
+
 const navItems = [
-  { href: '/dashboard', icon: '📊', label: 'Home' },
-  { href: '/transactions', icon: '💳', label: 'Transaksi' },
-  { href: '/wallets', icon: '👛', label: 'Wallet' },
-  { href: '/scan', icon: '📷', label: 'Scan' },
+  { href: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Home' },
+  { href: '/transactions', icon: <CreditCard size={20} />, label: 'Transaksi' },
+  { href: '/wallets', icon: <WalletIcon size={20} />, label: 'Wallet' },
+  { href: '/scan', icon: <Camera size={20} />, label: 'Scan' },
 ];
 
 export default function BottomNav() {
