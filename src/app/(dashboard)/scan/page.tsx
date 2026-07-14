@@ -61,9 +61,29 @@ export default function ScanReceiptPage() {
   };
 
   const proceedToManualEntry = () => {
-    // In a real flow, we'd parse amount and pass it via URL or state
-    // Let's pass the raw text as notes or description for now
-    router.push(`/transactions/add?notes=${encodeURIComponent(resultText.substring(0, 100))}`);
+    let amount = '';
+    const text = resultText.toUpperCase();
+    
+    // Naive parse for biggest number (likely total)
+    const numbers = resultText.match(/\d+(?:[.,]\d+)?/g);
+    if (numbers) {
+      const parsed = numbers.map(n => Number(n.replace(/,/g, ''))).filter(n => !isNaN(n) && n > 0);
+      if (parsed.length > 0) {
+        amount = Math.max(...parsed).toString();
+      }
+    }
+
+    // Naive category guessing
+    let categoryKeyword = '';
+    if (text.includes('COFFEE') || text.includes('KOPI') || text.includes('KFC') || text.includes('MCD') || text.includes('FOOD') || text.includes('RESTO')) {
+      categoryKeyword = 'makan';
+    } else if (text.includes('GRAB') || text.includes('GOJEK') || text.includes('PARKIR') || text.includes('TOL') || text.includes('STASIUN')) {
+      categoryKeyword = 'transportasi';
+    } else if (text.includes('MART') || text.includes('SUPERINDO') || text.includes('INDOMARET') || text.includes('ALFAMART') || text.includes('BCA')) {
+      categoryKeyword = 'belanja';
+    }
+
+    router.push(`/transactions/add?amount=${amount}&category=${categoryKeyword}&notes=${encodeURIComponent(resultText.substring(0, 100))}`);
   };
 
   return (

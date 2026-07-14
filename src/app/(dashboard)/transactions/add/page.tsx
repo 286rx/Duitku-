@@ -33,6 +33,21 @@ export default function AddTransactionPage() {
       setCategories(cats || []);
       setWallets(walls || []);
       if (walls && walls.length > 0) setWalletId(walls[0].id);
+
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const initAmount = params.get('amount');
+        const initNotes = params.get('notes');
+        const initCategory = params.get('category');
+        
+        if (initAmount) setAmount(initAmount);
+        if (initNotes) setNotes(initNotes);
+        
+        if (initCategory && cats) {
+          const matched = cats.find(c => c.name.toLowerCase().includes(initCategory.toLowerCase()));
+          if (matched) setCategoryId(matched.id);
+        }
+      }
     };
     loadData();
   }, []);
