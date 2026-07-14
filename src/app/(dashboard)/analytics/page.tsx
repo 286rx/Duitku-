@@ -172,7 +172,7 @@ export default function AnalyticsPage() {
         borderColor: 'rgba(255,255,255,0.1)',
         borderWidth: 1,
         callbacks: {
-          label: (ctx: { dataset: { label?: string }; parsed: { y: number } }) => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`,
+          label: (ctx: any) => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`,
         },
       },
     },
@@ -213,7 +213,7 @@ export default function AnalyticsPage() {
       tooltip: {
         backgroundColor: '#1A1A3E',
         callbacks: {
-          label: (ctx: { label?: string; parsed: number }) => `${ctx.label}: ${formatCurrency(ctx.parsed)}`,
+          label: (ctx: any) => `${ctx.label}: ${formatCurrency(ctx.parsed)}`,
         },
       },
     },
