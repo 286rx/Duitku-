@@ -188,7 +188,7 @@ export default function Dashboard() {
               <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'white' }}>
                 {formatter.format(Number(wallet.balance))}
               </div>
-              <div style={{ position: 'absolute', top: '16px', right: '16px', width: '12px', height: '12px', borderRadius: '50%', background: wallet.color }} />
+              <div style={{ position: 'absolute', top: '16px', right: '16px', width: '12px', height: '12px', borderRadius: '50%', background: wallet.color || '#90A4AE' }} />
             </div>
           ))}
 
