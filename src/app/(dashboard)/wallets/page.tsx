@@ -13,7 +13,7 @@ export default function WalletsPage() {
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newWallet, setNewWallet] = useState({ name: '', type: 'bank', balance: 0, color: '#6C5CE7', icon: '🏦' });
+  const [newWallet, setNewWallet] = useState({ name: '', type: 'bank', balance: '', color: '#6C5CE7', icon: '🏦' });
 
   const supabase = createClient();
 
@@ -43,18 +43,29 @@ export default function WalletsPage() {
     e.preventDefault();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
+      const rawBalance = Number(newWallet.balance.toString().replace(/\D/g, ''));
       await supabase.from('wallets').insert({
         user_id: user.id,
         name: newWallet.name,
         type: newWallet.type,
-        balance: newWallet.balance,
+        balance: rawBalance,
         color: newWallet.color,
         icon: newWallet.icon
       });
       setIsModalOpen(false);
-      setNewWallet({ name: '', type: 'bank', balance: 0, color: '#6C5CE7', icon: '🏦' });
+      setNewWallet({ name: '', type: 'bank', balance: '', color: '#6C5CE7', icon: '🏦' });
       fetchWallets();
     }
+  };
+
+  const handleBalanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    if (!rawValue) {
+      setNewWallet({ ...newWallet, balance: '' });
+      return;
+    }
+    const formatted = new Intl.NumberFormat('id-ID').format(Number(rawValue));
+    setNewWallet({ ...newWallet, balance: formatted });
   };
 
   const formatter = new Intl.NumberFormat('id-ID', {
@@ -103,7 +114,12 @@ export default function WalletsPage() {
           </div>
           <div className="form-group">
             <label className="form-label">Type</label>
-            <select className="form-input" value={newWallet.type} onChange={e => setNewWallet({...newWallet, type: e.target.value})}>
+            <select 
+              className="form-input" 
+              value={newWallet.type} 
+              onChange={e => setNewWallet({...newWallet, type: e.target.value})}
+              style={{ appearance: 'none', backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px top 50%', backgroundSize: '12px auto' }}
+            >
               <option value="cash">Cash</option>
               <option value="bank">Bank Account</option>
               <option value="ewallet">E-Wallet</option>
@@ -111,7 +127,18 @@ export default function WalletsPage() {
           </div>
           <div className="form-group">
             <label className="form-label">Initial Balance</label>
-            <input className="form-input" type="number" required value={newWallet.balance} onChange={e => setNewWallet({...newWallet, balance: Number(e.target.value)})} />
+            <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '16px', color: 'var(--text-secondary)' }}>Rp</span>
+              <input 
+                className="form-input" 
+                type="text" 
+                required 
+                value={newWallet.balance} 
+                onChange={handleBalanceChange}
+                style={{ paddingLeft: '45px' }}
+                placeholder="10.000.000"
+              />
+            </div>
           </div>
           <div className="form-group" style={{ display: 'flex', gap: '1rem' }}>
             <div style={{ flex: 1 }}>
