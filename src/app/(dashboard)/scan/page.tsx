@@ -78,7 +78,7 @@ export default function ScanReceiptPage() {
         continue;
       }
 
-      const isTotalLine = line.includes('TOTAL') || line.includes('TL') || line.includes('BAYAR') || line.includes('TUNAI') || line.includes('NET') || line.includes('CASH');
+      const isTotalLine = line.includes('TOTAL') || line.includes('TDTAL') || line.includes('T0TAL') || line.includes('TL') || line.includes('BAYAR') || line.includes('TUNAI') || line.includes('NET') || line.includes('CASH') || line.includes('JUMLAH');
       const numbersInLine = line.match(/\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?/g);
       
       if (numbersInLine) {
@@ -178,7 +178,7 @@ export default function ScanReceiptPage() {
   return (
     <div className="page-container animate-in">
       <header className="page-header">
-        <h1 className="page-title">Scan Receipt 📷</h1>
+        <h1 className="page-title">Scan Receipt 📷 (v2)</h1>
         <p className="page-subtitle">Extract text from your receipts using OCR</p>
       </header>
 
