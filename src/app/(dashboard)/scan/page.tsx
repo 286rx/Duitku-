@@ -70,29 +70,34 @@ export default function ScanReceiptPage() {
     // Smart parse for total
     const lines = text.split('\n');
     let foundTotalLine = false;
+    let validNumbers: number[] = [];
 
     for (const line of lines) {
-      if (line.includes('TOTAL') || line.includes('TL') || line.includes('BAYAR') || line.includes('TUNAI') || line.includes('NET') || line.includes('CASH')) {
-        const numbersInLine = line.match(/\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?/g);
-        if (numbersInLine) {
-          const parsed = numbersInLine.map(n => Number(n.replace(/[,.]/g, ''))).filter(n => !isNaN(n) && n > 0);
-          if (parsed.length > 0) {
+      // Abaikan baris yang terindikasi sebagai alamat (menghindari salah baca kode pos/RT/RW)
+      if (line.includes('KEC') || line.includes('KOTA') || line.includes('KAB') || line.includes('RT') || line.includes('RW') || line.includes('JL.') || line.includes('JALAN')) {
+        continue;
+      }
+
+      const isTotalLine = line.includes('TOTAL') || line.includes('TL') || line.includes('BAYAR') || line.includes('TUNAI') || line.includes('NET') || line.includes('CASH');
+      const numbersInLine = line.match(/\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?/g);
+      
+      if (numbersInLine) {
+        const parsed = numbersInLine.map(n => Number(n.replace(/[,.]/g, ''))).filter(n => !isNaN(n) && n > 0);
+        if (parsed.length > 0) {
+          if (isTotalLine) {
             amount = Math.max(amount, Math.max(...parsed));
             foundTotalLine = true;
           }
+          validNumbers.push(...parsed);
         }
       }
     }
 
-    // Fallback if no total line found: get the biggest number but filter out likely zip codes/NPWP
+    // Fallback: Jika gagal menemukan kata TOTAL, ambil angka paling besar yang masuk akal
     if (!foundTotalLine || amount === 0) {
-      const numbers = resultText.match(/\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?/g);
-      if (numbers) {
-        const parsed = numbers.map(n => Number(n.replace(/[,.]/g, '')))
-          .filter(n => !isNaN(n) && n > 100 && n < 50000000 && n !== 15000 && n.toString().length !== 5 && n.toString().length !== 15);
-        if (parsed.length > 0) {
-          amount = Math.max(...parsed);
-        }
+      const safeNumbers = validNumbers.filter(n => n > 100 && n < 50000000 && n !== 15000);
+      if (safeNumbers.length > 0) {
+        amount = Math.max(...safeNumbers);
       }
     }
 
