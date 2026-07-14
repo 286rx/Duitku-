@@ -60,8 +60,11 @@ export default function ScanReceiptPage() {
     }
   };
 
-  const proceedToManualEntry = () => {
-    let amount = '';
+  const saveAutomatically = async () => {
+    setLoading(true);
+    setStatus('Menyimpan transaksi...');
+    
+    let amount = 0;
     const text = resultText.toUpperCase();
     
     // Naive parse for biggest number (likely total)
@@ -69,8 +72,15 @@ export default function ScanReceiptPage() {
     if (numbers) {
       const parsed = numbers.map(n => Number(n.replace(/,/g, ''))).filter(n => !isNaN(n) && n > 0);
       if (parsed.length > 0) {
-        amount = Math.max(...parsed).toString();
+        amount = Math.max(...parsed);
       }
+    }
+
+    if (amount === 0) {
+      // Fallback if no amount found
+      setStatus('Gagal mendeteksi angka. Harap input manual.');
+      router.push(`/transactions/add?notes=${encodeURIComponent(resultText.substring(0, 100))}`);
+      return;
     }
 
     // Naive category guessing
@@ -83,7 +93,61 @@ export default function ScanReceiptPage() {
       categoryKeyword = 'belanja';
     }
 
-    router.push(`/transactions/add?amount=${amount}&category=${categoryKeyword}&notes=${encodeURIComponent(resultText.substring(0, 100))}`);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get wallets and categories
+      const [{ data: walls }, { data: cats }] = await Promise.all([
+        supabase.from('wallets').select('*').eq('user_id', user.id).eq('is_active', true),
+        supabase.from('categories').select('*').or(`user_id.eq.${user.id},is_default.eq.true`)
+      ]);
+
+      const defaultWallet = walls && walls.length > 0 ? walls[0] : null;
+      if (!defaultWallet) {
+        setStatus('Buat Wallet terlebih dahulu!');
+        setLoading(false);
+        return;
+      }
+
+      let categoryId = null;
+      if (categoryKeyword && cats) {
+        const matched = cats.find(c => c.name.toLowerCase().includes(categoryKeyword.toLowerCase()));
+        if (matched) categoryId = matched.id;
+      }
+
+      // Insert tx
+      const { error: txError } = await supabase.from('transactions').insert({
+        user_id: user.id,
+        wallet_id: defaultWallet.id,
+        category_id: categoryId,
+        type: 'expense',
+        amount: amount,
+        description: 'Auto Scan Receipt',
+        notes: resultText.substring(0, 200),
+        date: new Date().toISOString().split('T')[0],
+        source: 'scan'
+      });
+
+      if (txError) throw txError;
+
+      // Deduct balance
+      await supabase
+        .from('wallets')
+        .update({ balance: Number(defaultWallet.balance) - amount, updated_at: new Date().toISOString() })
+        .eq('id', defaultWallet.id);
+
+      setStatus('Transaksi berhasil disimpan!');
+      setTimeout(() => {
+        router.push('/transactions');
+      }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      setStatus('Gagal menyimpan otomatis. Harap manual.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -189,12 +253,12 @@ export default function ScanReceiptPage() {
             border: '1px solid var(--border-active)'
           }}>
             <p style={{ margin: 0, fontSize: 'var(--font-size-sm)' }}>
-              <strong>Note:</strong> Tesseract extracts raw text. You can copy relevant values and enter them manually in the next step.
+              <strong>Note:</strong> Kami mendeteksi total angka dan kategori secara otomatis dan akan langsung menyimpannya ke database Anda.
             </p>
           </div>
           
-          <button className="btn btn-primary btn-full" onClick={proceedToManualEntry}>
-            Proceed to Add Transaction
+          <button className="btn btn-primary btn-full" onClick={saveAutomatically}>
+            Save Transaction Automatically
           </button>
         </div>
       )}
