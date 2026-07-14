@@ -7,7 +7,7 @@ const navItems = [
   { href: '/dashboard', icon: '📊', label: 'Home' },
   { href: '/transactions', icon: '💳', label: 'Transaksi' },
   { href: '/wallets', icon: '👛', label: 'Wallet' },
-  { href: '/analytics', icon: '📈', label: 'Analitik' },
+  { href: '/scan', icon: '📷', label: 'Scan' },
 ];
 
 export default function BottomNav() {

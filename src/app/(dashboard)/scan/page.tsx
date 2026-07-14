@@ -36,7 +36,7 @@ export default function ScanReceiptPage() {
     try {
       const result = await Tesseract.recognize(
         image,
-        'eng+ind',
+        'eng',
         {
           logger: m => {
             if (m.status === 'recognizing text') {
