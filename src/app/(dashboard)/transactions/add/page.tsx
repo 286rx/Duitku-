@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import type { Category, Wallet } from '@/lib/types';
+import CustomSelect from '@/components/CustomSelect';
 
 export default function AddTransactionPage() {
   const supabase = createClient();
@@ -176,17 +177,15 @@ export default function AddTransactionPage() {
           {/* Wallet */}
           <div className="form-group">
             <label className="form-label">Wallet</label>
-            <select
-              className="form-select"
+            <CustomSelect
               value={walletId}
-              onChange={(e) => setWalletId(e.target.value)}
-              required
-            >
-              <option value="">Pilih wallet...</option>
-              {wallets.map(w => (
-                <option key={w.id} value={w.id}>{w.icon} {w.name}</option>
-              ))}
-            </select>
+              onChange={(val) => setWalletId(val)}
+              options={wallets.map(w => ({
+                value: w.id,
+                label: <>{w.icon} {w.name}</>
+              }))}
+              placeholder="Pilih wallet..."
+            />
             {wallets.length === 0 && (
               <p className="form-hint">Belum ada wallet. Buat di halaman Wallets.</p>
             )}
