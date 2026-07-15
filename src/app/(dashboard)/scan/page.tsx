@@ -12,7 +12,8 @@ export default function ScanReceiptPage() {
   const [status, setStatus] = useState('');
   const [resultText, setResultText] = useState('');
   
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,23 +121,44 @@ export default function ScanReceiptPage() {
 
       <div className="card" style={{ marginBottom: 'var(--spacing-lg)' }}>
         {!image ? (
-          <div 
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              border: '2px dashed var(--border)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--spacing-3xl) var(--spacing-md)',
-              textAlign: 'center',
-              cursor: 'pointer',
-              background: 'var(--bg-secondary)',
-              transition: 'var(--transition-fast)'
-            }}
-            onMouseOver={(e) => (e.currentTarget.style.borderColor = 'var(--primary-light)')}
-            onMouseOut={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
-          >
-            <div style={{ fontSize: '3rem', marginBottom: 'var(--spacing-md)' }}>📸</div>
-            <h3 style={{ marginBottom: 'var(--spacing-xs)' }}>Upload or take a photo</h3>
-            <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-sm)' }}>Supported formats: JPG, PNG, WEBP</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
+            <div 
+              onClick={() => cameraRef.current?.click()}
+              style={{
+                border: '2px dashed var(--border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--spacing-xl) var(--spacing-sm)',
+                textAlign: 'center',
+                cursor: 'pointer',
+                background: 'var(--bg-secondary)',
+                transition: 'var(--transition-fast)'
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.borderColor = 'var(--primary-light)')}
+              onMouseOut={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >
+              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--spacing-sm)' }}>📸</div>
+              <h3 style={{ fontSize: 'var(--font-size-md)', marginBottom: '4px' }}>Kamera</h3>
+              <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-xs)' }}>Foto struk baru</p>
+            </div>
+            
+            <div 
+              onClick={() => galleryRef.current?.click()}
+              style={{
+                border: '2px dashed var(--border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--spacing-xl) var(--spacing-sm)',
+                textAlign: 'center',
+                cursor: 'pointer',
+                background: 'var(--bg-secondary)',
+                transition: 'var(--transition-fast)'
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.borderColor = 'var(--primary-light)')}
+              onMouseOut={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >
+              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--spacing-sm)' }}>🖼️</div>
+              <h3 style={{ fontSize: 'var(--font-size-md)', marginBottom: '4px' }}>Galeri</h3>
+              <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-xs)' }}>Pilih foto tersimpan</p>
+            </div>
           </div>
         ) : (
           <div style={{ textAlign: 'center' }}>
@@ -172,7 +194,15 @@ export default function ScanReceiptPage() {
         <input 
           type="file" 
           accept="image/*" 
-          ref={fileInputRef} 
+          capture="environment"
+          ref={cameraRef} 
+          style={{ display: 'none' }}
+          onChange={handleImageUpload}
+        />
+        <input 
+          type="file" 
+          accept="image/*" 
+          ref={galleryRef} 
           style={{ display: 'none' }}
           onChange={handleImageUpload}
         />
