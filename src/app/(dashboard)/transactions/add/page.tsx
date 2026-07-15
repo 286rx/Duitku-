@@ -11,6 +11,7 @@ export default function AddTransactionPage() {
   const router = useRouter();
   const [type, setType] = useState<'expense' | 'income'>('expense');
   const [amount, setAmount] = useState('');
+  const [amountStr, setAmountStr] = useState('');
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -41,7 +42,10 @@ export default function AddTransactionPage() {
         const initNotes = params.get('notes');
         const initCategory = params.get('category');
         
-        if (initAmount) setAmount(initAmount);
+        if (initAmount) {
+          setAmount(initAmount);
+          setAmountStr(Number(initAmount).toLocaleString('id-ID'));
+        }
         if (initNotes) setNotes(initNotes);
         
         if (initCategory && cats) {
@@ -142,12 +146,20 @@ export default function AddTransactionPage() {
               <span className="currency-prefix">Rp</span>
               <input
                 className="form-input"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                min="0"
-                step="100"
+                value={amountStr}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\D/g, '');
+                  if (!raw) {
+                    setAmountStr('');
+                    setAmount('');
+                  } else {
+                    setAmountStr(Number(raw).toLocaleString('id-ID'));
+                    setAmount(raw);
+                  }
+                }}
                 required
               />
             </div>

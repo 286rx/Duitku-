@@ -7,7 +7,8 @@ import {
   LayoutDashboard,
   CreditCard,
   Wallet as WalletIcon,
-  Camera
+  Camera,
+  Settings
 } from 'lucide-react';
 
 const navItems = [
@@ -15,6 +16,7 @@ const navItems = [
   { href: '/transactions', icon: <CreditCard size={20} />, label: 'Transaksi' },
   { href: '/wallets', icon: <WalletIcon size={20} />, label: 'Wallet' },
   { href: '/scan', icon: <Camera size={20} />, label: 'Scan' },
+  { href: '/settings', icon: <Settings size={20} />, label: 'Settings' },
 ];
 
 export default function BottomNav() {
