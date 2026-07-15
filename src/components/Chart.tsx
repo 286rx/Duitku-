@@ -47,7 +47,7 @@ export default function Chart({ data, title }: ChartProps) {
     cutout: '75%',
     plugins: {
       legend: {
-        position: 'right' as const,
+        position: 'bottom' as const,
         labels: {
           color: '#e2e8f0', // text-slate-200
           font: {

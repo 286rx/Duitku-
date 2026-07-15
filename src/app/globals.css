@@ -152,11 +152,30 @@ img { max-width: 100%; height: auto; }
   min-height: 100vh;
 }
 
+.mobile-header {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
     padding: var(--spacing-md);
     padding-bottom: calc(var(--bottom-nav-height) + var(--spacing-xl));
+    min-height: calc(100vh - 60px);
+  }
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    background: rgba(10, 10, 26, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    height: 60px;
   }
 }
 
